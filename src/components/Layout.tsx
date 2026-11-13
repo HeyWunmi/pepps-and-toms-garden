@@ -2,6 +2,7 @@ import { useEffect, useRef, useState } from 'react'
 import { NavLink, Link, Outlet, useLocation } from 'react-router-dom'
 import { ArrowLeftRight, BookOpen, CalendarDays, ChartNoAxesCombined, CircleHelp, ClipboardList, House, LayoutDashboard, Leaf, Menu, Package, Settings, ShieldCheck, Sprout, Users, Wheat, X, Bell } from 'lucide-react'
 import type { LucideIcon } from 'lucide-react'
+import BackButton from './BackButton'
 
 export type NavItem = { path: string; label: string; icon: LucideIcon }
 export const customerNav: NavItem[] = [
@@ -46,7 +47,7 @@ export default function Layout({ admin = false }: { admin?: boolean }) {
       <div className="sidebar-bottom"><Link className="workspace-switch" to={admin ? '/customer/dashboard' : '/admin/overview'}><ArrowLeftRight size={17} aria-hidden="true" />{admin ? 'Customer workspace' : 'Admin workspace'}<span>Preview</span></Link><p><ShieldCheck size={14} /> Public interface preview</p></div>
     </aside>
     <div className="main-shell"><header className="topbar"><span>{admin ? 'Nursery workspace' : 'My workspace'}<span className="slash">/</span><strong>{current}</strong></span><span className="preview-pill"><span />UI preview</span></header>
-      <main ref={main} id="main" tabIndex={-1}><div className="sample-banner"><Leaf size={16} aria-hidden="true" /><span><strong>Sample workspace.</strong> All records are fictional. Forms do not save; reminders are not sent.{admin && ' Admin access is not protected yet.'}</span></div><Outlet /></main>
+      <main ref={main} id="main" tabIndex={-1}><div className="sample-banner"><Leaf size={16} aria-hidden="true" /><span><strong>Sample workspace.</strong> All records are fictional. Forms do not save; reminders are not sent.{admin && ' Admin access is not protected yet.'}</span></div>{pathname !== `${base}/${admin ? 'overview' : 'dashboard'}` && <BackButton fallback={`${base}/${admin ? 'overview' : 'dashboard'}`} />}<Outlet /></main>
       <footer className="app-footer"><span>Pepps & Toms Garden Companion</span><span>Interface preview · no connected account</span></footer>
     </div>
     <nav className="bottom-nav" aria-label="Quick navigation">{items.slice(0,4).map(({ path, label, icon: Icon }) => <NavLink key={path} to={`${base}/${path}`}><Icon size={20} aria-hidden="true" /><span>{label === 'Nursery Inventory' ? 'Inventory' : label === 'Care Calendar' ? 'Calendar' : label}</span></NavLink>)}<button onClick={() => { setOpen(true); menu.current?.focus() }} aria-label="Open all screens"><Menu size={20} /><span>More</span></button></nav>
