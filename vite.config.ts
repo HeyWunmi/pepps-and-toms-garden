@@ -13,7 +13,7 @@ export default defineConfig({
       short_name: 'Garden Companion',
       description: 'A garden companion for Pepps & Toms customers and anyone growing their own plants.',
       theme_color: '#2E6B0F',
-      background_color: '#FFF9F0',
+      background_color: '#FFFFFF',
       display: 'standalone',
       start_url: '/',
       scope: '/',

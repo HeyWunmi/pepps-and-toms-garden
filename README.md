@@ -1,74 +1,93 @@
 # Pepps & Toms Garden Companion
 
-A mobile-first, installable Progressive Web App foundation for Pepps & Toms customers and people growing their own plants.
+A mobile-first React, Vite, TypeScript and Tailwind PWA for Pepps & Toms nursery customers and people registering their own plants. This milestone provides navigation and interface previews, without a backend.
 
-## Run locally
+## Run and build
 
-Install Node.js 22.12 or newer (Node 24 recommended), which includes npm. From this repository folder:
+Use Node.js 22.12 or newer (Node 24 recommended).
 
 ```sh
 npm ci
 npm run dev
-```
-
-Open the local address printed by Vite (usually http://localhost:5173). Choose **My garden** or **Admin preview** in the navigation; on phones, open the menu first.
-
-## Check and build
-
-```sh
 npm run check
 npm run build
 npm run preview
 ```
 
-`check` verifies TypeScript. `build` checks types and creates the production app, web app manifest and service worker in `dist/`. `preview` serves that production build, usually at http://localhost:4173. The service worker is enabled in production builds, not the development server.
+Development normally runs at http://localhost:5173 and production preview at http://localhost:4173. `check` runs strict TypeScript checks; `build` checks types and creates `dist/` with the generated manifest and Workbox service worker. The dev script binds to `0.0.0.0` for environment previews.
 
-## Test the foundation
+## Screens and routes
 
-1. Open both `/#/customer` and `/#/admin`; confirm that the heading and navigation change.
-2. Test a narrow phone viewport (320px and up) and a desktop viewport. Check the menu, keyboard navigation and visible focus outlines.
-3. Run the production preview. In browser developer tools, inspect Application → Manifest and Service Workers. Confirm the manifest and its icons load and the worker is active.
-4. After the worker activates, reload once, switch developer tools to Offline, and reload again. The app shell and both dashboard views should still load. This does not store plant records or provide offline account access.
-5. For installation on a real device, the app must be served over HTTPS. Localhost is also considered secure for local desktop testing. An ordinary phone connection to a computer's HTTP LAN address will not support service workers.
-6. Android Chrome: use the browser's **Install app** or **Add to Home screen** option when available. iPhone Safari: use **Share → Add to Home Screen** and open the saved app. Exact labels vary by browser and OS; installation is controlled by the browser.
+React Router uses hash URLs so all screens remain reachable from static hosting and the cached app shell. Existing `/#/customer` and `/#/admin` links redirect to their respective overview screens.
 
-No public hosting is configured yet. Real Android and iPhone installation still needs device testing over HTTPS.
+| Customer | URL |
+| --- | --- |
+| Dashboard | `/#/customer/dashboard` |
+| My Plants / Add Plant | `/#/customer/plants` |
+| Calendar | `/#/customer/calendar` |
+| Reminders | `/#/customer/reminders` |
+| Growth Journal | `/#/customer/journal` |
+| Harvest Log | `/#/customer/harvest` |
+| Support | `/#/customer/support` |
+| Settings | `/#/customer/settings` |
 
-## What is included
+| Admin | URL |
+| --- | --- |
+| Overview | `/#/admin/overview` |
+| Nursery Inventory | `/#/admin/inventory` |
+| Customers | `/#/admin/customers` |
+| Care Calendar | `/#/admin/calendar` |
+| Reminders | `/#/admin/reminders` |
+| Plant Assignments | `/#/admin/assignments` |
+| Support | `/#/admin/support` |
+| Reports | `/#/admin/reports` |
 
-- React, Vite, strict TypeScript and Tailwind CSS.
-- Responsive customer and admin dashboard layouts with accessible navigation.
-- A manifest, standalone display, regular and maskable icons, iPhone home-screen icon, and a generated Workbox service worker using `vite-plugin-pwa`.
-- Production app-shell precaching for offline use after an initial online visit.
-- Clearly marked placeholders for plant collections, growth journals, reminders and customer management.
+## What works locally
 
-## Boundaries and next steps
+- Navigation, browser back/forward, customer/admin workspace switching, mobile bottom navigation and full-screen list menu (with Escape to close).
+- Sample plant search and nursery/personal source filtering; sample customer label search.
+- Upcoming/completed/overdue task filters.
+- Monthly/weekly calendar modes, previous/next periods, event-type filtering and selecting dates to view events.
+- Editable form fields and local photo-file selection (filename only). Inputs are temporary component state or browser form values; navigating away or reloading may clear them.
+- Production app-shell caching and install metadata. No authenticated records are cached.
 
-This is a foundation preview, not a functioning account or plant management system. Both views are public. The admin view is not protected and must not contain private information. There are no mock users, fake login screens, sample plant records, reminder scheduling or push notifications.
+## What remains a preview
 
-Supabase authentication, database access and permission checks will be added in a later phase. Before real records are introduced, admin access must be enforced by the backend and Supabase row-level security, not simply by hiding a navigation item. Customer and personal plants can share the future tracking experience.
+All records, counts, dates, statuses and report values are fictional examples. The illustrative schedule is November 2026; overdue and completed labels are fixed examples, not calculated or automated. Sample customer labels contain no real contact information.
 
-No Supabase, Cloudflare, database or paid service has been created. Current dependencies run locally. Future hosting and storage choices should be reviewed against the goal of roughly 200 users at minimal cost, including photo storage and reminder delivery limits.
+Plant, journal, harvest, inventory, assignment, account and support forms cannot save or send. Their submission buttons are disabled and explanatory notices are visible. A selected photo is not uploaded, stored or processed. No login, Supabase, database, email service, scheduled automation, analytics, push notifications or account permissions are connected. Reminder settings are marked **Planned** and disabled.
 
-## Project layout
+Both workspaces are public. Before introducing real data, enforce authentication, admin permissions and Supabase row-level security on the backend. Hiding links alone is not access control. Nursery stock and nursery assignments are distinct from personally registered plants.
 
-- `src/App.tsx`: public customer/admin view selection and placeholder layouts.
-- `src/styles.css`: Tailwind import, nature palette and responsive styles.
-- `src/main.tsx`: React entry point and production service worker registration.
-- `vite.config.ts`: build, Tailwind and PWA manifest/cache configuration.
-- `public/`: application icons. No external fonts or image services are needed.
+No hosting settings or paid services are configured. Nothing is publicly deployed by running the local preview.
 
-The current worker only precaches build assets; no API or authenticated response caching is configured. Revisit the update strategy before adding forms or unsaved journals, since `autoUpdate` allows new app-shell versions to activate automatically.
+## Branding and structure
+
+White is the main page background. The official palette supplies accents: primary green `#2E6B0F`, accent green `#3C8D0D`, tomato red `#D61E1E`, leaf green `#5BAE2A` and cream `#FFF9F0`. The original logo artwork and PWA icon assets are retained. Fonts are locally served from Fontsource; their SIL Open Font Licenses are included in `public/licenses/`. Lucide React supplies interface icons.
+
+- `src/App.tsx`: route definitions, redirects and missing-screen handling.
+- `src/components/Layout.tsx`: shared responsive shell and customer/admin navigation.
+- `src/components/UI.tsx`: reusable panels, badges, form notices and fields.
+- `src/components/Calendar.tsx`: shared calendar view and local selection state.
+- `src/components/Reminders.tsx`: shared task-status views.
+- `src/pages/Customer.tsx`, `src/pages/Admin.tsx`: screen components.
+- `src/data.ts`: isolated fictional fixtures, ready to replace with an authenticated data layer later.
+- `src/styles.css`: responsive layout and brand styles.
+- `vite.config.ts`: manifest, icons, Tailwind and service worker build configuration.
+
+## Manual validation
+
+1. Run the checks and production build above, then start the production preview.
+2. Visit each of the 16 routes. Check sidebar navigation, mobile menu, bottom navigation, workspace switching, browser back and forward, keyboard focus and Escape to close the menu.
+3. Inspect at 320, 390, 768 and 1440px widths. The page should not overflow horizontally; the inventory table has its own scroll area on small screens.
+4. Search My Plants for `basil`, then filter to Nursery: no sample results should remain. Search the sample customer labels. Switch all three reminder tabs.
+5. Change the calendar between Month and Week, move periods, filter event types and select dates. Events exist in November 2026; other periods can be empty.
+6. Edit preview form fields and select a local image in Growth Journal. Verify that no save/send button is enabled, no success message appears and no account, email or upload request is made.
+7. Inspect Application → Manifest / Service Workers in developer tools. Verify icons and white background metadata. Once the worker is active, reload, switch to Offline, and reload a deep link such as `/#/admin/reports`. The app shell should still load.
+8. Install on real Android/iPhone devices over HTTPS when hosting becomes available. Android Chrome offers Install app / Add to home screen; iPhone Safari uses Share → Add to Home Screen. Localhost works for desktop service-worker testing, but an ordinary HTTP LAN address does not.
+
+The worker is generated for production builds, not the dev server. Real-device installation remains to be verified. The current automatic worker update strategy should be revisited before connecting saved records or unsaved editing flows.
 
 ## Save to GitHub
 
-Review the changes, commit them, and push a branch:
-
-```sh
-git diff
-git add .
-git commit -m "Add garden companion PWA foundation"
-git push -u origin foundation
-```
-
-Then open a pull request from `foundation` to `main` on GitHub. If you work on a differently named branch, replace `foundation` with that branch name. Publishing the app or environment is a separate step.
+Work is on `foundation`. Commit and push that branch for review; merging or deployment is a separate action. No backend infrastructure is needed to review this UI milestone.
