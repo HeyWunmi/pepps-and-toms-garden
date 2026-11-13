@@ -6,14 +6,14 @@ import { VitePWA } from 'vite-plugin-pwa'
 export default defineConfig({
   plugins: [react(), tailwindcss(), VitePWA({
     registerType: 'autoUpdate',
-    includeAssets: ['favicon.svg', 'apple-touch-icon.png'],
+    includeAssets: ['favicon.png', 'apple-touch-icon.png'],
     manifest: {
       id: '/',
       name: 'Pepps & Toms Garden Companion',
       short_name: 'Garden Companion',
       description: 'A garden companion for Pepps & Toms customers and anyone growing their own plants.',
-      theme_color: '#214d38',
-      background_color: '#f8f7ef',
+      theme_color: '#2E6B0F',
+      background_color: '#FFF9F0',
       display: 'standalone',
       start_url: '/',
       scope: '/',

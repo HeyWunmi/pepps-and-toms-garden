@@ -21,7 +21,7 @@ export default function App() {
   return <div className="app-shell">
     <a href="#main" className="skip-link" onClick={(event) => { event.preventDefault(); document.getElementById('main')?.focus() }}>Skip to content</a>
     <aside className={`sidebar ${menuOpen ? 'is-open' : ''}`} aria-label="Main navigation">
-      <a className="brand" href="#/customer" aria-label="Pepps and Toms Garden Companion home"><span className="brand-icon"><Sprout size={28} /></span><span>Pepps & Toms<small>GARDEN COMPANION</small></span></a>
+      <a className="brand" href="#/customer" aria-label="Pepps and Toms Garden Companion home"><img className="brand-artwork" src="/brand-logo.png" alt="Pepps & Toms" /><small>GARDEN COMPANION</small></a>
       <div className="nav-label">YOUR SPACE</div>
       <nav className="space-y-2"><a className={`nav-item ${!admin ? 'active' : ''}`} aria-current={!admin ? 'page' : undefined} href="#/customer"><LayoutDashboard size={19} /> My garden <ChevronRight size={16} className="ml-auto" /></a><a className={`nav-item ${admin ? 'active' : ''}`} aria-current={admin ? 'page' : undefined} href="#/admin"><ShieldCheck size={19} /> Admin preview <ChevronRight size={16} className="ml-auto" /></a></nav>
       <div className="sidebar-note"><Leaf size={23} /><h2>A little care.<br />A lot of possibility.</h2><p>A space for every grower, from your first seedling onwards.</p><div className="flex gap-1 mt-5"><span /><span /><span /></div></div>
