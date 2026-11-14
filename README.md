@@ -16,6 +16,16 @@ npm run preview
 
 Development normally runs at http://localhost:5173 and production preview at http://localhost:4173. `check` runs strict TypeScript checks; `build` checks types and creates `dist/` with the generated manifest and Workbox service worker. The dev script binds to `0.0.0.0` for environment previews.
 
+## Optional Supabase configuration
+
+The reusable client in `src/lib/supabase.ts` is prepared for future data adapters. Existing screens continue to use local preview data and do not import or call the client.
+
+Copy `.env.example` to `.env.local` and replace the placeholders with your project's URL and **publishable** key when ready. Both `VITE_SUPABASE_URL` and `VITE_SUPABASE_PUBLISHABLE_KEY` are required. Restart Vite after changing them; production values are read at build time. Real `.env` files are ignored by Git.
+
+Vite exposes `VITE_` values in the browser bundle: never use a secret or service-role key. Missing or invalid configuration leaves the exported `supabase` client as `null`; future callers must check it before use. A constructed client does not verify credentials or connectivity. Session persistence, token refresh and auth URL detection are disabled until authentication is deliberately implemented.
+
+No authentication flows, database tables, sample-data connections or uploads are added by this setup. The public preview works without any environment configuration.
+
 ## Screens and routes
 
 React Router uses hash URLs so all screens remain reachable from static hosting and the cached app shell. Existing `/#/customer` and `/#/admin` links redirect to their respective overview screens.
