@@ -1,0 +1,33 @@
+import { beforeEach, expect, it, vi } from 'vitest'
+const mocks = vi.hoisted(() => ({ exchange: vi.fn() }))
+vi.mock('../src/lib/supabase', () => ({ supabase: { auth: { exchangeCodeForSession: mocks.exchange } } }))
+beforeEach(() => { vi.resetModules(); mocks.exchange.mockReset(); window.history.replaceState(null, '', '/') })
+it('exchanges the one-time code once, preserves recovery route and cleans history', async () => {
+  window.history.replaceState(null, '', '/?auth=recovery&code=test-code#/auth/update-password')
+  mocks.exchange.mockResolvedValue({ error: null })
+  const { completeAuthCallback } = await import('../src/auth/callback')
+  expect(await Promise.all([completeAuthCallback(), completeAuthCallback()])).toEqual(['', ''])
+  expect(mocks.exchange).toHaveBeenCalledExactlyOnceWith('test-code')
+  expect(window.location.search).toBe('')
+  expect(window.location.hash).toBe('#/auth/update-password')
+})
+it('reports expired/cross-browser callbacks without exposing provider details', async () => {
+  window.history.replaceState(null, '', '/?code=expired#/auth/update-password')
+  mocks.exchange.mockResolvedValue({ error: new Error('private provider detail') })
+  const { completeAuthCallback } = await import('../src/auth/callback')
+  expect(await completeAuthCallback()).toContain('invalid or expired')
+  expect(window.location.search).toBe('')
+})
+it('handles callback network errors', async () => {
+  window.history.replaceState(null, '', '/?code=test-code#/auth/login')
+  mocks.exchange.mockRejectedValue(new Error('network unavailable'))
+  const { completeAuthCallback } = await import('../src/auth/callback')
+  expect(await completeAuthCallback()).toContain('Check your connection')
+})
+it('handles provider denial without exchanging a code', async () => {
+  window.history.replaceState(null, '', '/?error=access_denied#/auth/reset')
+  const { completeAuthCallback } = await import('../src/auth/callback')
+  expect(await completeAuthCallback()).toContain('invalid or expired')
+  expect(mocks.exchange).not.toHaveBeenCalled()
+  expect(window.location.search).toBe('')
+})

@@ -1,6 +1,6 @@
 # Pepps & Toms Garden Companion
 
-A mobile-first React, Vite, TypeScript and Tailwind PWA for Pepps & Toms nursery customers and people registering their own plants. This milestone provides navigation and interface previews, without a backend.
+A mobile-first React, Vite, TypeScript and Tailwind PWA for Pepps & Toms nursery customers and people registering their own plants. Garden screens remain interface previews; Supabase authentication is implemented with manual backend setup required.
 
 ## Run and build
 
@@ -16,15 +16,15 @@ npm run preview
 
 Development normally runs at http://localhost:5173 and production preview at http://localhost:4173. `check` runs strict TypeScript checks; `build` checks types and creates `dist/` with the generated manifest and Workbox service worker. The dev script binds to `0.0.0.0` for environment previews.
 
-## Optional Supabase configuration
+## Supabase authentication — setup required
 
-The reusable client in `src/lib/supabase.ts` is prepared for future data adapters. Existing screens continue to use local preview data and do not import or call the client.
+Customer signup, sign-in, sign-out and password-reset screens use the existing Supabase client. Sessions persist and refresh in the browser. All customer routes require a verified session; admin routes additionally require the server-side `is_admin()` role check. Missing configuration or unavailable role checks deny access with a clear message.
 
-Copy `.env.example` to `.env.local` and replace the placeholders with your project's URL and **publishable** key when ready. Both `VITE_SUPABASE_URL` and `VITE_SUPABASE_PUBLISHABLE_KEY` are required. Restart Vite after changing them; production values are read at build time. Real `.env` files are ignored by Git.
+**The database migration has not been applied or tested against a hosted project.** Follow [the manual setup guide](supabase/SETUP.md), starting with the migration and SQL security tests in a test Supabase project. The guide covers email redirects, environment variables, first-admin authorisation and live verification. Do not treat deployed admin security as verified yet.
 
-Vite exposes `VITE_` values in the browser bundle: never use a secret or service-role key. Missing or invalid configuration leaves the exported `supabase` client as `null`; future callers must check it before use. A constructed client does not verify credentials or connectivity. Session persistence, token refresh and auth URL detection are disabled until authentication is deliberately implemented.
+Use `.env.local` (ignored by Git) with `VITE_SUPABASE_URL` and `VITE_SUPABASE_PUBLISHABLE_KEY`, following `.env.example`. Vite embeds these public values at build time. Never use a secret or service-role key. The client remains `null` if configuration is missing or invalid; account screens remain available to explain the setup issue.
 
-No authentication flows, database tables, sample-data connections or uploads are added by this setup. The public preview works without any environment configuration.
+Run `npm test` for the automated auth UI and route-boundary tests. These mock Supabase and do not replace the SQL or live email/session tests.
 
 ## Screens and routes
 
@@ -67,11 +67,11 @@ React Router uses hash URLs so all screens remain reachable from static hosting 
 
 All records, counts, dates, statuses and report values are fictional examples. The illustrative schedule is November 2026; overdue and completed labels are fixed examples, not calculated or automated. Sample customer labels contain no real contact information.
 
-Plant, journal, harvest, inventory, assignment, account and support forms cannot save or send. Their submission buttons are disabled and explanatory notices are visible. Selected Add Plant and care-advice photos are decoded locally for validation and preview, but are not uploaded, permanently stored or analysed. The older journal photo field remains a filename-only preview. No login, Supabase, database, email service, scheduled automation, analytics, push notifications or account permissions are connected. Reminder settings are marked **Planned** and disabled.
+Plant, journal, harvest, inventory, assignment, account and support forms cannot save or send. Their submission buttons are disabled and explanatory notices are visible. Selected Add Plant and care-advice photos are decoded locally for validation and preview, but are not uploaded, permanently stored or analysed. The older journal photo field remains a filename-only preview. Garden data, scheduled automation, analytics and push notifications are not connected. Account authentication uses Supabase when configured; garden forms remain previews. Reminder settings are marked **Planned** and disabled.
 
 Customer Support now includes a clearly labelled **Ask about my plant** draft interface with a photograph, observations and qualitative soil-moisture fields. The typed draft contract supports future Storage uploads and optional admin review. Submission and admin-review controls are disabled; there is no AI connection, diagnosis, review workflow, email or simulated success.
 
-Both workspaces are public. Before introducing real data, enforce authentication, admin permissions and Supabase row-level security on the backend. Hiding links alone is not access control. Nursery stock and nursery assignments are distinct from personally registered plants.
+Both workspaces now have authentication gates, with server-checked staff membership for admin routes. Apply and test the prepared database policies before relying on admin access. Before introducing real garden data, add and test policies for every new table and Storage bucket. Nursery stock and nursery assignments are distinct from personally registered plants.
 
 No hosting settings or paid services are configured. Nothing is publicly deployed by running the local preview.
 
@@ -110,4 +110,4 @@ The worker is generated for production builds, not the dev server. Real-device i
 
 ## Save to GitHub
 
-Work is on `foundation`. Commit and push that branch for review; merging or deployment is a separate action. No backend infrastructure is needed to review this UI milestone.
+Work is on `foundation`. Commit and push that branch for review; merging or deployment is a separate action. Supabase configuration and the manual database setup above are required to exercise authenticated routes.

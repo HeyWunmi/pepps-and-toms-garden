@@ -8,11 +8,12 @@ function createOptionalClient(): SupabaseClient | null {
 
   try {
     return createClient(url, publishableKey, {
-      // Authentication is not connected yet; avoid session storage or URL handling.
+      // PKCE keeps email callbacks out of the hash used by React Router.
       auth: {
-        persistSession: false,
-        autoRefreshToken: false,
+        persistSession: true,
+        autoRefreshToken: true,
         detectSessionInUrl: false,
+        flowType: 'pkce',
       },
     })
   } catch {
