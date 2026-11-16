@@ -2,7 +2,7 @@
 
 ## Current status
 
-The React code is implemented. The database migration has **not** been applied to a hosted Supabase project and its RLS tests have **not** been run here. Do not describe deployed admin access as secure or fully operational until the steps below pass on your project.
+The React code is implemented. The database migration has **not** been applied to a hosted Supabase project and its RLS tests have **not** been run against a real Supabase environment here. Do not describe deployed admin access as secure or fully operational until the steps below pass on your project.
 
 Customer routes require a session verified with Supabase Auth. Admin routes additionally call `public.is_admin()` and fail closed on missing functions, network errors or a false response. The route guard is a user-interface gate; actual database enforcement is in Postgres permissions and RLS. Static JavaScript and fictional sample records remain downloadable, including through the PWA cache. Never place private data or secrets in these files.
 
@@ -15,6 +15,16 @@ Use a separate development/test Supabase project first. In its dashboard, open *
 Next run `supabase/tests/auth_roles.sql` in a new SQL Editor query. It creates temporary test users inside a transaction and ends with `ROLLBACK`; it must finish without errors. If a query errors, run `ROLLBACK;` before another query if the editor still has an open transaction. The tests check anonymous denial, own-profile access, blocked self-promotion (including forged user metadata), protected staff membership, and immediate role revocation. The fictional fixture IDs must not already exist.
 
 After reviewing the result, the owner can apply the same migration to the intended project. Do not run destructive or experimental tests against real customer records. Keep the SQL results as deployment evidence. No migrations have been applied by this code change.
+
+### Corrected SQL Editor test and validation limits
+
+If the old script failed with `schema "pg_temp" does not exist`, do **not** rerun the successfully applied migration. Run the entire corrected `supabase/tests/auth_roles.sql` in one new SQL Editor query. If an earlier transaction is still aborted, execute `ROLLBACK;` first. Run as the project owner; the script switches to `anon` and `authenticated` internally and restores the role before rolling back.
+
+The old helper function could be created through the special `pg_temp` alias, but `GRANT USAGE ON SCHEMA pg_temp` looked for a schema literally named `pg_temp`. PostgreSQL creates session-specific names such as `pg_temp_3`. This reproduced on PostgreSQL 17; it was a test-harness problem, not a migration or RLS failure. The corrected script uses inline, invoker-context `DO` blocks and explicit `RAISE EXCEPTION` checks, so it needs no helper schema, function or grants. Unlike PL/pgSQL `ASSERT`, these checks cannot be switched off by `plpgsql.check_asserts`.
+
+The script checks the effective role and user identity, positive own-profile and staff access, permission denials, exact affected-row counts, forged metadata in both the user row and simulated JWT claims, and revocation without changing those claims. Expected-denial blocks catch only `insufficient_privilege`; unrelated SQL errors fail the test. Run the whole script: a successful selected statement is not a passing security suite.
+
+Local validation: the unchanged migration and corrected suite passed on an isolated PostgreSQL 17 instance with a **minimal simulated Supabase Auth schema**. Seven deliberately broken variants were detected: anonymous profile access, disabled profile RLS, customer self-promotion, trusting forged metadata, denying all staff, ignoring revocation, and a test role with BYPASSRLS. Successful and failed runs left no fixture rows; transaction-scoped mutations rolled back. This does **not** verify Supabase SQL Editor execution, the real Auth schema, or your deployed policies. Rerun the corrected script in `pepps-and-toms-test` and keep the result before considering that environment verified.
 
 ## 2. Configure Supabase Auth and your local environment
 
